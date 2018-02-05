@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+		  h2 {
+        color: black;
+        text-align: center;
+      }
+
+      .axis {
+        font-family: arial;
+        font-size: 0.6em;
+      }
+
+      path {
+        fill: none;
+        stroke: black;
+        stroke-width: 2px;
+      }
+
+      .tick {
+        fill: none;
+        stroke: black;
+      }
+
+      circle {
+        opacity: 0.4;
+        stroke: none;
+      }
+      
+      .line_plot {
+        fill: none;
+        stroke: #4eb0bb;
+        stroke-width: 1px;
+      }
+		
+    </style>
+    <script type="text/javascript">  
+      function draw(data) {
+      	var margin=75,
+      	width=1400-margin,
+      	height=600-margin;
+      	
+      	var radius=3,
+      	multiplier=2;
+      	
+      	d3.select('body')
+      		.append('h2')
+      		.text('Height vs HR');
+      	
+      	var svg=d3.select('body')
+      					  .append('svg')
+      					  .attr('width',width+margin)
+      					  .attr('height',height+margin)
+      					  .append('g')
+      					  .attr('class','chart')
+      	
+      	hands=['R','L'];
+      	
+      	d3.select('svg')
+      		.selectAll('circle')
+      		.data(data)
+      		.enter()
+      		.append('circle')
+      	
+      	var height_extent=d3.extent(data,function(d){
+      			return d['height'];
+      		});
+      	
+      	var count_extent=d3.extent(data,function(d){
+      			return d['HR'];
+      		});
+      	
+      	var height_scale=d3.scale.linear()
+      									 	 .range([margin,width])
+      									   .domain(height_extent);
+      									 
+      	var count_scale=d3.scale.linear()
+      										.range([height,margin])
+      										.domain(count_extent);
+      	
+      	var height_axis=d3.svg.axis()
+      									.scale(height_scale)
+      
+      	var count_axis=d3.svg.axis()
+      									 .scale(count_scale)
+      									 .orient('left');
+      									 
+      	d3.select('svg')
+      		.append('g')
+      		.attr('class','x axis')
+      		.attr('transform','translate(0,'+height+')')
+      		.call(height_axis);
+      	
+      	d3.select('svg')
+      		.append('g')
+      		.attr('class','y axis')
+      		.attr('transform','translate('+margin+',0)')
+      		.call(count_axis);
+      		
+      	debugger;
+      	
+      	d3.selectAll('circle')
+      		.attr('cx',function(d){
+      				return height_scale(d['height']);
+      			})
+      		.attr('cy',function(d){
+      				return count_scale(d['HR']);
+      			})
+      		.attr('r',function(d){
+      				if(d['handedness']==='R'){
+      					return radius*multiplier;
+      				}else{
+      						return radius;
+      					}
+      			},radius)
+      		.attr('fill',function(d){
+      				if(d['handedness']==='R'){
+      						return 'red';
+    					}else{
+    							return 'blue';
+    						}
+      			});
+      			
+      	function update(hand){
+      			var filtered=nested.filter(functiond(d){
+      					return new Hand(d['handedness']===hand;
+      				});
+      			
+      			var circles=svg.selectAll('circle')
+      										 .data(filtered,key_func);
+      			
+      			circles.exit).remove();
+      			
+      			circles.enter()
+      						 .append('circle')
+      						 .transition()
+      						 .duration(500)
+      			
+      			var hand=filtered[0].values['handedness']
+      			
+      			function update_hand(d){
+      					if(hand.indexOf(d.properties.name)!==-1){
+      							return 'lightBlue';
+      						}else{
+      								return 'white';
+      							}
+      				}
+      			
+      			svg.selectAll('path')
+      				 .transition()
+      				 .duration(500)
+      				 .style('fill',update_hand)
+      				 .style('stroke',update_hand);
+      		}
+      	
+      	var buttons=d3.select('body')
+      								.append('div')
+      								.attr('class','handedness_button')
+      								.selectAll('div')
+      								.data(handedness)
+      								.enter()
+      								.append('div')
+      								.text(function(d){
+      										return d;
+      									});
+      	buttons.on('click',function(d){
+      		d3.select('.handedness_button')
+      			.selectAll('div')
+      			.transition()
+      			.duration(500)
+      			.style('color','black')
+      			.style('backgound','rgb(251,201,127)');
+      			
+      		d3.select(this)
+      			.transition()
+      			.duration(500)
+      			.style('background','lightBlue')
+      			.style('color','white');
+      		update(d);
+      		});
+      	};
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+
+	d3.csv('baseball_data.csv',function(d){
+			d['HR']=+d['HR'];//将字符型转化为数值型
+			return d;
+		},draw);
+  </script>
+</body>
+</html>
