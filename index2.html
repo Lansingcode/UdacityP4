@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+		  h2 {
+        color: black;
+        text-align: center;
+      }
+
+      .axis {
+        font-family: arial;
+        font-size: 0.6em;
+      }
+
+      .tick {
+        fill: none;
+        stroke: black;
+      }
+
+      circle {
+        opacity: 0.4;
+        stroke: none;
+      }
+      
+      .line_plot {
+        fill: none;
+        stroke: #4eb0bb;
+        stroke-width: 1px;
+      }
+      
+      path {
+        fill: none;
+        stroke: black;
+        stroke-width: 2px;
+      }
+      
+      svg{
+      	margin-left:100px;
+      	}
+      
+      div.category_buttons{
+      	position:fixed;
+      	top:100px;
+      	left:20px;
+      	}
+      
+      div.category_buttons div{
+      	background-color:rgb(251,201,127);
+      	padding:3px;
+      	margin:7px;
+      	}
+		
+    </style>
+    <script type="text/javascript">  
+      function draw(data) {
+      	var margin=75,
+      	width=1250-margin,
+      	height=600-margin;
+      	
+      	var radius=3,
+      	multiplier=2;
+      	
+      	d3.select('body')
+      		.append('h2')
+      		.text('Day of Month vs. Delay');
+      	
+      	var svg=d3.select('body')
+      					  .append('svg')
+      					  .attr('width',width+margin)
+      					  .attr('height',height+margin)
+
+      	
+      	d3.select('svg')
+      	  .append('g')
+      		.selectAll('circle')
+      		.data(data)
+      		.enter()
+      		.append('circle')
+      	
+      	var x_scale=d3.scale.linear()
+      									 	 .range([margin,width])
+      									   .domain([1,31]);
+      									 
+      	var count_scale=d3.scale.linear()
+      										.range([height,margin])
+      										.domain([0,600]);
+      	
+      	var x_axis=d3.svg.axis()
+      									 .scale(x_scale)
+      
+      	var count_axis=d3.svg.axis()
+      									 .scale(count_scale)
+      									 .orient('left');
+      									 
+      	d3.select('svg')
+      		.append('g')
+      		.attr('class','x axis')
+      		.attr('transform','translate(0,'+height+')')
+      		.call(x_axis);
+      	
+      	d3.select('svg')
+      		.append('g')
+      		.attr('class','y axis')
+      		.attr('transform','translate('+margin+',0)')
+      		.call(count_axis);
+      		
+      	//data aggregation
+      	function agg_data(leaves){
+      		var dep_delay_count=d3.sum(leaves,function(d){
+      			if(d['DepDelay']>0 | d['Cancelled']===1){
+      				return 1;
+      				}else{
+      				return 0;
+      				}
+      			});
+      			
+      		var arr_delay_count=d3.sum(leaves,function(d){
+      			if(d['ArrDelay']>0 | d['Cancelled']===1){
+      				return 1;
+      				}else{
+      				return 0;
+      				}
+      			});
+      			
+      		var countries=d3.set()
+      		leaves.forEach(function(d){
+      			countries.add(d['Origin']);
+      			});
+      		return {
+      			'dep_delay_count':dep_delay_count,
+      			'arr_delay_count':arr_delay_count,
+      			'origin_country':countries.values()
+      			};
+      		}
+				debugger;
+      	var nested=d3.nest()
+      							 .key(function(d){
+      							 		return d['DayofMonth'];
+      							 	})
+      							 .rollup(agg_data)
+      							 .entries(data);
+      	debugger;
+      	
+  	    function key_func(d) {
+            return d['key'];
+        }
+      	//update the x axis
+      	function update(param){
+
+      		var filtered=nested.filter(function(d){
+      				return d['key']===0;
+      			});
+      			
+          var circles = svg.selectAll('circle')
+                           .data(filtered);
+          var axises=svg.selectAll('.axis')
+          							.data([])
+          
+      		debugger;
+      		circles.exit().remove();
+      		axises.exit().remove();
+      		debugger;
+					nested=d3.nest()
+						 .key(function(d){
+						 		return d[param];
+						 	})
+						 .rollup(agg_data)
+						 .entries(data);
+      		
+      		if(param=='DayofMonth'){
+      			debugger;
+      				var x_scale=d3.scale.linear()
+			      									 	.range([margin,width])
+			      									  .domain([1,31]);
+      									 
+			      	var count_scale=d3.scale.linear()
+			      										.range([height,margin])
+			      										.domain([0,600]);
+			      	d3.select('h2')
+			      	  .text('Day of Month vs. Delay');
+							
+      			}else if(param=='DayOfWeek'){
+      				debugger;
+      				var x_scale=d3.scale.linear()
+			      									 	.range([margin,width])
+			      									  .domain([1,7]);
+      									 
+			      	var count_scale=d3.scale.linear()
+			      										.range([height,margin])
+			      										.domain([0,3000]);     
+			      	d3.select('h2')
+			      	  .text('Day of Week vs. Delay'); 				
+      				}
+      				
+		    	var x_axis=d3.svg.axis()
+		    									 .scale(x_scale)
+		    
+		    	var count_axis=d3.svg.axis()
+		    									 .scale(count_scale)
+		    									 .orient('left');
+      									 
+	      	d3.select('svg')
+	      		.append('g')
+	      		.attr('class','x axis')
+	      		.attr('transform','translate(0,'+height+')')
+	      		.call(x_axis);
+	      	
+	      	d3.select('svg')
+	      		.append('g')
+	      		.attr('class','y axis')
+	      		.attr('transform','translate('+margin+',0)')
+	      		.call(count_axis);
+	      		
+		      d3.select('svg')
+	      	  .append('g')
+	      		.selectAll('circle')
+	      		.data(nested)
+	      		.enter()
+	      		.append('circle')
+
+	      	d3.selectAll('circle')
+	      		.data(nested)
+	      		.attr('cx',function(d){return x_scale(d.key);})
+	      		.attr('cy',function(d){return count_scale(d.values['dep_delay_count']);})
+	      		.attr('r',function(d){return 5;})
+	      		.attr('fill',function(d){return 'red';});
+	      		
+      		}
+      	d3.selectAll('circle')
+      		.data(nested)
+      		.attr('cx',function(d){return x_scale(d.key);})
+      		.attr('cy',function(d){return count_scale(d.values['dep_delay_count']);})
+      		.attr('r',function(d){return 5;})
+      		.attr('fill',function(d){return 'red';});
+      		
+      		
+      	//buttons
+      	cat=['DayofMonth','DayOfWeek','Departure Delay','Arrival Delay']
+      	var buttons=d3.select('body')
+      								.append('div')
+      								.attr('class','category_buttons')
+      								.selectAll('div')
+      								.data(cat)
+      								.enter()
+      								.append('div')
+      								.text(function(d){return d;});
+      									
+      	buttons.on('click',function(d){
+      			d3.select('.category_buttons')
+      				.selectAll('div')
+      				.style('color','black')
+      				.style('background','rgb(251,201,127)');
+
+      			d3.select(this)
+      				.style('background','lightBlue')
+      				.style('color','white');
+      			update(d);
+      		});
+      };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+
+	d3.csv('1987_10000.csv',function(d){
+			d['Month']=+d['Month'];//将字符型转化为数值型
+			d['DayofMonth']=+d['DayofMonth'];
+			d['DayOfWeek']=+d['DayOfWeek'];
+			d['ArrDelay']=+d['ArrDelay'];
+			d['DepDelay']=+d['DepDelay'];
+			d['Cancelled']=+d['Cancelled'];
+			
+			return d;
+		},draw);
+		debugger;
+  </script>
+</body>
+</html>
