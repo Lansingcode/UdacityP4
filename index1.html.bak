@@ -132,7 +132,7 @@
       			var circles=svg.selectAll('circle')
       										 .data(filtered,key_func);
       			
-      			circles.exit().remove();
+      			circles.exit).remove();
       			
       			circles.enter()
       						 .append('circle')
