@@ -12,6 +12,8 @@ Udacity Data Visualization Project
 3.在悬浮窗中加入数字说明，使展示更加清晰。  
 ## 资源
 [航班信息数据集](http://stat-computing.org/dataexpo/2009/the-data.html)  
+[Using d3-tip to add tooltips to a d3 bar chart](http://bl.ocks.org/Caged/6476579)  
+[Simple d3.js tooltips](http://bl.ocks.org/d3noob/a22c42db65eb00d4e369)
 
 - 启动方式  
 在命令行中进入html所在文件夹，输入命令`python -m SimpleHTTPServer 8080`启动web服务器，在浏览器地址栏中输入`localhost:8080`可显示页面。
